@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: your_database
+      MYSQL_USER: your_username
+      MYSQL_PASSWORD: your_password
+    ports:
+      - "3305:3306"  # 호스트 포트 3305가 컨테이너 포트 3306에 매핑됩니다.
+    volumes:
+      - ./db_init/init.sql:/docker-entrypoint-initdb.d/init.sql  # 초기화 SQL 스크립트
+      - ./db_data:/var/lib/mysql 
+
+  app:
+    build: ./node_server
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: your_username
+      DB_PASSWORD: your_password
+      DB_DATABASE: your_database
+    # 아래는 Node.js 애플리케이션이 MySQL이 초기화될 때까지 기다리도록 설정
+    command: >
+      sh -c "until curl -s db:3306 > /dev/null; do echo 'Waiting for db...'; sleep 2; done;
+      npm start"
+
+volumes:
+  db_data:

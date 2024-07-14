@@ -1,0 +1,12 @@
+# Dockerfile
+FROM mysql:5.7
+
+ENV MYSQL_ROOT_PASSWORD=rootpassword
+ENV MYSQL_DATABASE=your_database
+ENV MYSQL_USER=your_username
+ENV MYSQL_PASSWORD=your_password
+
+COPY ./db_init/init.sql /docker-entrypoint-initdb.d/init.sql
+
+# 데이터 볼륨 설정
+VOLUME /var/lib/mysql
